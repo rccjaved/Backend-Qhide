@@ -1,0 +1,13 @@
+Qhide_backend/
+├── index.js
+├── db.js
+├── .env
+├── package.json
+├── controllers/
+│   ├── authController.js
+│   └── ticketController.js          ✅
+├── routes/
+│   ├── auth.js
+│   └── ticket.js                    ✅
+├── services/
+│   └── ticketService.js            ✅
