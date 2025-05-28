@@ -1,10 +1,12 @@
 const hospitalController = require('../../controllers/dashboard/hospitalController')
-import { authDashboardMiddleware } from '../../middlewares/authDashboardMiddleware'
+const authDashboardMiddleware = require('../../middlewares/authDashboardMiddleware')
 const router = require('express').Router()
 
-// router.post('/category-add',authMiddleware, categoryController.add_category) 
-router.get('/hospital-get',authDashboardMiddleware, hospitalController.get_hospital) 
-// router.put('/category-update/:id',authMiddleware, categoryController.update_category) 
-// router.delete('/category/:id', categoryController.deleteCategory) 
 
-export default router
+// console.log('authDashboardMiddleware:', authDashboardMiddleware)
+// console.log('hospitalController.get_hospital:', hospitalController.get_hospital)
+router.get('/hospital-get', authDashboardMiddleware, hospitalController.get_hospital)
+router.post('/hospital-add', authDashboardMiddleware, hospitalController.add_hospital)
+
+
+module.exports = router

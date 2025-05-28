@@ -1,58 +1,84 @@
-const formidable = require("formidable")
-const { responseReturn } = require("../../utiles/response")
-const cloudinary = require('cloudinary').v2
-const { Hospital } = require('../models');
- 
-class hospitalController{
+const { IncomingForm } = require("formidable");
+const { responseReturn } = require("../../utils/response")
+const { Hospital } = require('../../models');
+const { Op } = require('sequelize');
+
+class hospitalController {
 
 
     get_hospital = async (req, res) => {
-       const {page,searchValue, perPage} = req.query 
- 
-       try {
-            let skipPage = ''
-            if (perPage && page) {
-                skipPage = parseInt(perPage) * (parseInt(page) - 1)
+        const { page, searchValue, perPage } = req.query;
+
+        try {
+            // Parse and validate parameters
+            const currentPage = parseInt(page) || 1;
+            const itemsPerPage = parseInt(perPage) || 10;
+            const offset = (currentPage - 1) * itemsPerPage;
+
+            // Build where clause for search
+            let where = {};
+            if (searchValue && searchValue.trim() !== '') {
+                where = {
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${searchValue}%` } },
+                        { city: { [Op.like]: `%${searchValue}%` } },
+                        { address: { [Op.like]: `%${searchValue}%` } }
+                    ]
+                };
             }
- 
-        if (searchValue && page && perPage) {
-            const hospitals = await Hospital.find({
-                $text: { $search: searchValue }
-            }).skip(skipPage).limit(perPage).sort({ createdAt: -1})
-            const totalHospital = await Hospital.find({
-                $text: { $search: searchValue }
-            }).countDocuments()
-            responseReturn(res, 200,{hospitals,totalHospital})
-        } 
-        else if(searchValue === '' && page && perPage) {
 
-            const hospitals = await Hospital.find({ }).skip(skipPage).limit(perPage).sort({ createdAt: -1})
-            const totalHospital = await Hospital.find({ }).countDocuments()
-            responseReturn(res, 200,{hospitals,totalHospital}) 
-        } 
-        
-        else {
+            // Get paginated results
+            const { count, rows: hospitals } = await Hospital.findAndCountAll({
+                where,
+                limit: itemsPerPage,
+                offset: offset,
+                order: [['createdAt', 'DESC']]
+            });
 
-            const hospitals = await Hospital.find({ }).sort({ createdAt: -1})
-            const totalHospital = await Hospital.find({ }).countDocuments()
-            responseReturn(res, 200,{hospitals,totalHospital})
-            
+            responseReturn(res, 200, {
+                hospitals,
+                totalHospital: count,
+                totalPages: Math.ceil(count / itemsPerPage),
+                currentPage
+            });
+
+        } catch (error) {
+            console.error('Error fetching hospitals:', error);
+            responseReturn(res, 500, { error: 'Server error while fetching hospitals' });
         }
-        
-       } catch (error) {
-            console.log(error.message)
-       }
-
-
     }
 
     // end method 
 
 
 
+    add_hospital = async (req, res) => {
+  try {
+    const { name, city, address, phone, is_approved, latitude, longitude } = req.body;
+    const hospital = await Hospital.create({
+      name, city, address, phone, is_approved, latitude, longitude
+    });
+    return responseReturn(res, 201, {
+      hospital,
+      message: "Hospital Added Successfully"
+    });
+  } catch (error) {
+    console.error("DB create error:", error);
+    return responseReturn(res, 500, {
+      error: "Internal Server Error",
+      detail: error.message
+    });
+  }
+};
+
+
+    // end method
+
+
+
 
 
 }
- 
+
 
 module.exports = new hospitalController()

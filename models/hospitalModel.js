@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       phone: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      is_approved: {
+          type: DataTypes.INTEGER,
+          defaultValue: 0 // 0 = Pending, 1 = Approved, 2 = Rejected
       }
     }, {
       tableName: 'hospitals',
