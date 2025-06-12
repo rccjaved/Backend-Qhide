@@ -29,6 +29,8 @@ app.use('/api',           require('./routes/appointments'))
 app.use('/api/dashboard/auth',      require('./routes/authRoutes'))
 // Mount your hospital management under a parallel sub-path:
 app.use('/api/dashboard/hospitals', require('./routes/dashboard/hospitalRoutes'))
+// Mount your service management under a parallel sub-path:
+app.use('/api/dashboard/services', require('./routes/dashboard/serviceRoutes'))
 
 // ── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT
