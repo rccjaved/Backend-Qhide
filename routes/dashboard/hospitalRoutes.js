@@ -12,4 +12,5 @@ router.put('/edit/:Id', authDashboardMiddleware, hospitalController.update_hospi
 router.delete('/delete/:Id', authDashboardMiddleware, hospitalController.delete_hospital);
 
 
+
 module.exports = router
